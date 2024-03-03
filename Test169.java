@@ -1,0 +1,235 @@
+/*=================================
+■■■ 컬렉션(Collection) ■■■
+=================================*/
+
+//Set(복주머니) -> HashSet, TreeSet, ...
+
+// - 순서 의미가 없다.
+// - 중복 허용하지 않는 구조(기본).
+
+/*
+- TreeSet<E> 클래스
+	: java.util.TreeSet<E> 클래스는
+      Set 인터페이스를 상속한 SortedSet(정렬기능이 포함되어 있는 Set) 인터페이스를 구현한 클래스로
+	  데이터를 추가하면 데이터들이 자동으로 오름차순 정렬이 된다.
+	  (정렬에 부하가 많이 발생하여 HashSet() 보다 성능이 떨어진다. -> 따라서 사용빈도가 낮다.)
+*/
+
+//VO - Value Object          -> DTD와 거의 구분하지 않음.
+//DTD - Data Transfer Object -
+//                            | 실무에서 둘이 구분하는 걸 많이 함.
+//DAO - Data Access Object   -
+
+import java.util.TreeSet;
+import java.util.Iterator;
+import java.util.Comparator;
+
+class GradeVO
+{
+	//주요 속성 구성
+	private String hak;            //학번
+	private String name;           //이름
+	private int kor, eng, mat;     //국어, 영어, 수학 점수
+
+	//사용자 정의 생성자 -> 5개의 매개변수를 가진 생성자
+	GradeVO(String hak, String name, int kor, int eng, int mat)
+	{
+		this.hak = hak;
+		this.name = name;
+		this.kor = kor;
+		this.eng = eng;
+		this.mat = mat;
+	}
+
+	//이와 같은 경우 default 생성자 자동 삽입되지 않음~
+
+	//사용자 정의 생성자 -> 매개변수 없는 생성자(default 생성자 형태)
+	GradeVO()
+	{
+		//생성자 내부에서 또다른 생성자 호출
+		//GradeVO("", "", 0,0,0)
+		//    ||
+		this("", "", 0,0,0);
+	}
+
+	//getter / setter 구성
+	public String getHak()
+	{
+		return hak;
+	}
+	public void setHak(String hak)
+	{
+		this.hak = hak;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public int getKor()
+	{
+		return kor;
+	}
+	public void setKor(int kor)
+	{
+		this.kor = kor;
+	}
+
+	public int getEng()
+	{
+		return eng;
+	}
+	public void setEng(int eng)
+	{
+		this.eng = eng;
+	}
+
+	public int getMat()
+	{
+		return mat;
+	}
+	public void setMat(int mat)
+	{
+		this.mat = mat;
+	}
+
+	//추가 메소드 정의
+	public int getTot()
+	{
+		//return kor + eng + mat;  -> 같음.
+		return this.kor + this.eng + this.mat;
+	}
+}
+
+//제네틱이 클래스로 설계될때 어떤 형태로 설계되는가
+//comparator를 통해 문자열 비교
+//안에서 재정의하여 비교실행.
+class MyComparator<T> implements Comparator<T>  //T -> Type이라고 가정해서 T를 씀, E -> Element를 가정해서 E를 썼는데 아무거나 써도 됨.
+												//<T>이거를 넣어서 class 클래스명을 사용하게끔 한다.
+{
+	//비교 메소드 재정의
+	@Override
+	public int compare(T o1, T o2)    //T 타입의 무언가(o1), T 타입의 무언가(o2) 의 크기 비교
+	{
+		GradeVO s1 = (GradeVO)o1;      //GradeVO 타입의 o1을 s1에 담는다.
+		GradeVO s2 = (GradeVO)o2;      //GradeVO 타입의 o2을 s2에 담는다.
+		
+		//학번 기준(오름차순)
+		//return Integer.parseInt(s1.getHak()) - Integer.parseInt(s2.getHak());
+		//return Integer.parseInt(s1.getHak()); - Integer.parseInt(s2.getHak());
+		//return Integer.parseInt("2308113"); - Integer.parseInt("2308116");
+		//return 2308113 - 2308116;
+		//return -3; -> 음수가 나오면 뒤의 값이 더 큼.
+		//-> o2가 더 큰 것으로 비교 결과 전달
+
+		//...return 5;
+		//-> o1가 더 큰 것으로 비교 결과 전달
+
+		//...return 0;
+		//-> o1과 o2가 같은 것으로 비교 결과 전달
+
+		//학번 기준(내림차순)
+		//return Integer.parseInt(s2.getHak()) - Integer.parseInt(s1.getHak());
+
+		//총점 기준(오름차순)
+		//return s1.getTot() - s2.getTot();
+		return Integer.valueOf(s2.getTot()).compareTo(Integer.valueOf(s1.getTot()));
+
+		//총점 기준(내림차순)
+		//return s2.getTot() - s1.getTot();
+
+		//이름 기준(오름차순) -> Test137.java 참고
+		//return s1.getName().compareTo(s2.getName());
+
+		//이름 기준(내림차순) -> Test137.java 참고
+		//return s2.getName().compareTo(s1.getName());
+
+	}
+}
+
+public class Test169
+{
+	public static void main(String[] args)
+	{
+		//TreeSet 자료구조 생성
+		TreeSet<String> set = new TreeSet<String>();
+
+		//TreeSet 자료구조 set 에 요소 추가 -> add();
+		set.add("짱구는못말려");
+		set.add("슬램덩크");
+		set.add("원피스");
+		set.add("달빛천사");
+		set.add("이누야샤");
+		set.add("너의이름은");
+		set.add("슈가슈가룬");
+		set.add("배틀짱");
+		set.add("디지몬");
+		
+		//Iterator 를 활용한 Set 요소 전체 출력
+		Iterator<String> it = set.iterator();
+		while (it.hasNext())
+		{
+			System.out.print(it.next() + " ");
+		}
+		System.out.println();
+		//너의이름은 달빛천사 디지몬 배틀짱 슈가슈가룬 슬램덩크 원피스 이누야샤 짱구는못말려
+		//요소를 문자열로 구성할 경우
+		//가나다순 -> 오름차순 정렬
+		
+		//TreeSet 자료구조 생성
+		//TreeSet<GradeVO> set2 = new TreeSet<GradeVO>();
+		TreeSet<GradeVO> set2 = new TreeSet<GradeVO>(new MyComparator<GradeVO>());
+
+		//TreeSet 자료구조 set2에 요소 추가
+		set2.add(new GradeVO("2308113", "길땡욱", 90, 80, 70));
+		set2.add(new GradeVO("2308116", "최땡인", 91, 81, 81));
+		set2.add(new GradeVO("2308120", "이땡수", 88, 78, 68));
+		set2.add(new GradeVO("2308103", "김땡슬", 70, 95, 91));
+		set2.add(new GradeVO("2308132", "정땡욱", 99, 82, 79));
+
+		//Iterator 를 활용한 set2 요소 전체출력
+		/*
+		Iterator<GradeVO> it2 = set2.iterator();
+		while (it2.hasNext())
+		{
+			System.out.print(it2.next() + " ");
+		}
+		System.out.println();
+		//런타임 에러 발생
+		//java.lang.ClassCastException: 
+		//GradeVO cannot be cast to java.lang.Comparable
+		//TreeSet은 자료구조는 격납하는 과정에서 크기비교를 하게 되어
+		//문자열끼리 비교하게 만들어 놓음
+		*/
+		//                ↓
+		/*
+		//MyComparator 클래스를 생성하여
+		// compare() 메소드를 재정의한 후 다시 구성
+		Iterator<GradeVO> it2 = set2.iterator();
+		while (it2.hasNext())
+		{
+			System.out.print(it2.next() + " ");
+		}
+		System.out.println();
+		//GradeVO@15db9742 GradeVO@6d06d69c GradeVO@7852e922 GradeVO@4e25154f GradeVO@70dea4e
+		//내부적으론 정렬을 다 한 것임.
+		*/
+		//                 ↓
+		//객체 자체를 직접 출력하는 것이 아니라
+		//객체가 갖고있는 속성에 접근하여 출력할 수 있도록 처리.
+
+		Iterator<GradeVO> it3 = set2.iterator();
+		while (it3.hasNext())
+		{
+			//System.out.print(it2.next().getHak() + " " + it2.next().getName()); -> 0번째 학생의 학번과 next로 하나가 밀리기 때문에 1번째 학생의 이름이 출력 되므로 이렇게 하면 안됨.
+			GradeVO gv = it3.next();   //it3 -> Iterator타입, it3.next(); -> GradeVO 타입이므로 GradeVO타입 gv에 담기 가능
+			System.out.printf("%7s %7s %4d %4d %4d %5d\n", gv.getHak(), gv.getName(), gv.getKor(), gv.getEng(), gv.getMat(), gv.getTot());
+		}
+		System.out.println();
+	}
+}
